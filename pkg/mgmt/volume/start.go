@@ -94,7 +94,7 @@ func Start(controllerMtx *sync.RWMutex, stopCh <-chan struct{}) error {
 func getClusterConfig(kubeconfig string) (*rest.Config, error) {
 	cfg, err := rest.InClusterConfig()
 	if err != nil {
-		klog.Errorf("Failed to get k8s Incluster config. %+v", err)
+		klog.Errorf("Failed to get k8s Incluster config, trying KUBECONFIG. %+v", err)
 		if kubeconfig == "" {
 			if kubeconfigFromEnv := os.Getenv("KUBECONFIG"); kubeconfigFromEnv != "" {
 				kubeconfig = kubeconfigFromEnv
