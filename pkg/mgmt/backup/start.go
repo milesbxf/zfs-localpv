@@ -17,6 +17,7 @@ limitations under the License.
 package backup
 
 import (
+	"os"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -96,7 +97,11 @@ func getClusterConfig(kubeconfig string) (*rest.Config, error) {
 	if err != nil {
 		klog.Errorf("Failed to get k8s Incluster config. %+v", err)
 		if kubeconfig == "" {
-			return nil, errors.Wrap(err, "kubeconfig is empty")
+			if kubeconfigFromEnv := os.Getenv("KUBECONFIG"); kubeconfigFromEnv != "" {
+				kubeconfig = kubeconfigFromEnv
+			} else {
+				return nil, errors.Wrap(err, "kubeconfig is empty and KUBECONFIG is not set")
+			}
 		}
 		cfg, err = clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
 		if err != nil {
