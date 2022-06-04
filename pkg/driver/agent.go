@@ -149,17 +149,28 @@ func (ns *node) NodePublishVolume(
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+
+	st, err := os.Stat(mountInfo.MountPath)
+	if err != nil {
+		klog.Errorf("Failed to stat mount path: %s", err.Error())
+	} else {
+		klog.Infof("Mount path %s exists: %+v", st)
+	}
+
 	// If the access type is block, do nothing for stage
 	switch req.GetVolumeCapability().GetAccessType().(type) {
 	case *csi.VolumeCapability_Block:
 		// attempt block mount operation on the requested path
+		klog.Infof("Attempting to mount block volume %s at %s", vol.Name, mountInfo.MountPath)
 		err = zfs.MountBlock(vol, mountInfo)
 	case *csi.VolumeCapability_Mount:
 		// attempt filesystem mount operation on the requested path
+		klog.Infof("Attempting to mount filesystem %s at %s", vol.Name, mountInfo.MountPath)
 		err = zfs.MountFilesystem(vol, mountInfo)
 	}
 
 	if err != nil {
+		klog.Errorf("returning error to NodePublishVolume request: %s", err.Error())
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &csi.NodePublishVolumeResponse{}, nil
@@ -195,6 +206,7 @@ func (ns *node) NodeUnpublishVolume(
 	err = zfs.UmountVolume(vol, targetPath)
 
 	if err != nil {
+		klog.Errorf("returning error to NodeUnpublishVolume request: %s", err.Error())
 		return nil, status.Errorf(codes.Internal,
 			"unable to umount the volume %s err : %s",
 			volumeID, err.Error())

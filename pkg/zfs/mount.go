@@ -230,6 +230,7 @@ func MountDataset(vol *apis.ZFSVolume, mount *MountInfo) error {
 		}
 
 		MountVolArg = append(MountVolArg, "-o", mntopt, "-t", "zfs", volume, mount.MountPath)
+		klog.Infof("mounting dataset %s to %s with args %v", volume, mount.MountPath, MountVolArg)
 		cmd := exec.Command("mount", MountVolArg...)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
@@ -261,6 +262,7 @@ func MountFilesystem(vol *apis.ZFSVolume, mount *MountInfo) error {
 	if err := os.MkdirAll(mount.MountPath, 0750); err != nil {
 		return status.Errorf(codes.Internal, "Could not create dir {%q}, err: %v", mount.MountPath, err)
 	}
+	klog.Infof("successfully created the directory %s", mount.MountPath)
 
 	switch vol.Spec.VolumeType {
 	case VolTypeDataset:
