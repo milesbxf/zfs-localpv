@@ -271,7 +271,7 @@ func MountFilesystem(vol *apis.ZFSVolume, mount *MountInfo) error {
 	if err != nil {
 		klog.Errorf("Failed to stat mount path: %s", err.Error())
 	} else {
-		klog.Infof("Mount path %s exists: %+v", st)
+		klog.Infof("Mount path %s exists with mode %d", mount.MountPath, st.Mode())
 	}
 
 	switch vol.Spec.VolumeType {

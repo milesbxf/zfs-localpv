@@ -154,7 +154,7 @@ func (ns *node) NodePublishVolume(
 	if err != nil {
 		klog.Errorf("Failed to stat mount path: %s", err.Error())
 	} else {
-		klog.Infof("Mount path %s exists: %+v", st)
+		klog.Infof("Mount path %s exists with mode %d", mountInfo.MountPath, st.Mode())
 	}
 
 	// If the access type is block, do nothing for stage
