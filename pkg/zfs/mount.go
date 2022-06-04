@@ -223,13 +223,16 @@ func MountDataset(vol *apis.ZFSVolume, mount *MountInfo) error {
 
 	if val == "legacy" {
 		var MountVolArg []string
-		var mntopt string
 
-		for _, option := range mount.MountOptions {
-			mntopt += option + ","
+		if len(mount.MountOptions) > 0 {
+			var mntopt string
+			for _, option := range mount.MountOptions {
+				mntopt += option + ","
+			}
+			MountVolArg = append(MountVolArg, "-o", mntopt)
 		}
 
-		MountVolArg = append(MountVolArg, "-o", mntopt, "-t", "zfs", volume, mount.MountPath)
+		MountVolArg = append(MountVolArg, "-t", "zfs", volume, mount.MountPath)
 		klog.Infof("mounting dataset %s to %s with args %v", volume, mount.MountPath, MountVolArg)
 		cmd := exec.Command("mount", MountVolArg...)
 		out, err := cmd.CombinedOutput()
@@ -263,6 +266,13 @@ func MountFilesystem(vol *apis.ZFSVolume, mount *MountInfo) error {
 		return status.Errorf(codes.Internal, "Could not create dir {%q}, err: %v", mount.MountPath, err)
 	}
 	klog.Infof("successfully created the directory %s", mount.MountPath)
+
+	st, err := os.Stat(mount.MountPath)
+	if err != nil {
+		klog.Errorf("Failed to stat mount path: %s", err.Error())
+	} else {
+		klog.Infof("Mount path %s exists: %+v", st)
+	}
 
 	switch vol.Spec.VolumeType {
 	case VolTypeDataset:
