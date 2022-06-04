@@ -18,6 +18,7 @@ package driver
 
 import (
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 
@@ -150,11 +151,12 @@ func (ns *node) NodePublishVolume(
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	st, err := os.Stat(mountInfo.MountPath)
+	volumePath := filepath.Dir(mountInfo.MountPath)
+	_, err = os.Stat(volumePath)
 	if err != nil {
-		klog.Errorf("Failed to stat mount path: %s", err.Error())
+		klog.Errorf("Failed to stat volume path: %s", err.Error())
 	} else {
-		klog.Infof("Mount path %s exists with mode %d", mountInfo.MountPath, st.Mode())
+		klog.Infof("Volume path %s exists with mode", volumePath)
 	}
 
 	// If the access type is block, do nothing for stage

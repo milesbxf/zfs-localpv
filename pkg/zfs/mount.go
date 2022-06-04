@@ -237,8 +237,8 @@ func MountDataset(vol *apis.ZFSVolume, mount *MountInfo) error {
 		cmd := exec.Command("mount", MountVolArg...)
 		out, err := cmd.CombinedOutput()
 		if err != nil {
-			klog.Errorf("zfs: could not mount the dataset %v cmd %v error: %s",
-				volume, MountVolArg, string(out))
+			klog.Errorf("zfs: could not mount the dataset %v cmd %v cmdErr: %v error: %s",
+				volume, MountVolArg, err, string(out))
 			return status.Errorf(codes.Internal, "dataset: mount failed err : %s", string(out))
 		}
 		klog.Infof("dataset : legacy mounted %s => %s", volume, mount.MountPath)
